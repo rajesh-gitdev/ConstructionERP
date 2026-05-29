@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Folder Include="DTOs\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConstructionERP.Domain\ConstructionERP.Domain.csproj" />
   </ItemGroup>
 
 </Project>

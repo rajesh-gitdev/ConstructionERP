@@ -1,5 +1,6 @@
 ﻿using ConstructionERP.Domain.Entities;
 using ConstructionERP.Infrastructure.Context;
+using ConstructionERP.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,18 +10,18 @@ namespace ConstructionERP.API.Controllers
     [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EmployeeRepository _repository;
 
-        public EmployeeController(ApplicationDbContext context)
+        public EmployeeController(EmployeeRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: api/employee
         [HttpGet]
         public async Task<IActionResult> GetEmployees()
         {
-            var employees = await _context.Employees.ToListAsync();
+            var employees = await _repository.GetAllAsync();
 
             return Ok(employees);
         }
@@ -29,7 +30,7 @@ namespace ConstructionERP.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEmployeeById(int id)
         {
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = await _repository.GetByIdAsync(id);
 
             if (employee == null)
             {
@@ -43,11 +44,9 @@ namespace ConstructionERP.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEmployee(Employee employee)
         {
-            _context.Employees.Add(employee);
+            var result = await _repository.AddAsync(employee);
 
-            await _context.SaveChangesAsync();
-
-            return Ok(employee);
+            return Ok(result);
         }
 
         // PUT: api/employee/1
@@ -59,27 +58,26 @@ namespace ConstructionERP.API.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(employee).State = EntityState.Modified;
+            var updatedEmployee = await _repository.UpdateAsync(employee);
 
-            await _context.SaveChangesAsync();
+            if (updatedEmployee == null)
+            {
+                return NotFound();
+            }
 
-            return Ok(employee);
+            return Ok(updatedEmployee);
         }
 
         // DELETE: api/employee/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployee(int id)
         {
-            var employee = await _context.Employees.FindAsync(id);
+            var deleted = await _repository.DeleteAsync(id);
 
-            if (employee == null)
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            _context.Employees.Remove(employee);
-
-            await _context.SaveChangesAsync();
 
             return Ok("Employee Deleted Successfully");
         }

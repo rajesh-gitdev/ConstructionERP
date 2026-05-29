@@ -1,4 +1,5 @@
 using ConstructionERP.Infrastructure.Context;
+using ConstructionERP.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             b => b.MigrationsAssembly("ConstructionERP.Infrastructure")));
 
-   
+builder.Services.AddScoped<EmployeeRepository, EmployeeRepository>();                      
 
 var app = builder.Build();
 
